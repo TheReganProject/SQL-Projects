@@ -1,0 +1,117 @@
+/* Created by Brandon Regan
+This script is a reporting script and reports back asked for data from the database
+Created on 15/11/19 */
+
+
+/* This query selects and displays members names, address, contact details and membership status */
+SELECT 
+  FirstName, 
+  LastName, 
+  StreetNumber, 
+  StreetName, 
+  Suburb, 
+  PostCode, 
+  State, 
+  Mobile, 
+  Email, 
+  ParticipationStatus 
+FROM 
+  G_Member;
+
+
+
+/* This query selects the name and their attendence for courses*/
+SELECT 
+  FirstName, 
+  LastName, 
+  AttendedDate 
+FROM 
+  G_Member NATURAL 
+  JOIN G_CourseAttendance;
+
+
+
+/* This query lists events name, date and time as well as the organiser and attendies and sorts by most recent */
+SELECT 
+  Name, 
+  StartDateTime, 
+  EndDateTime, 
+  MemberID, 
+  * 
+FROM 
+  G_Event NATURAL 
+  JOIN G_EventOrganising NATURAL 
+  JOIN G_EventAttendance 
+ORDER BY 
+  StartDateTime DESC;
+
+
+
+
+/* This query lists all members who have served in the association committee for more than one time but are not currently serving */
+SELECT 
+  FirstName, 
+  LastName, 
+  Mobile, 
+  Email, 
+  CMStartDate, 
+  CMExpireDate 
+FROM 
+  G_Member NATURAL 
+  JOIN G_CommitteeMemberHistory 
+WHERE 
+  ACommitteePosition (
+    SELECT 
+      ACommitteePosition 
+    FROM 
+      G_CommitteeMemberType
+  );
+
+
+
+
+/*This query lists all events that took place last calendar year*/
+SELECT 
+  * 
+FROM 
+  G_Event 
+WHERE 
+  YEAR(EndDateTime) = 2018;
+
+
+
+
+/*This query reports all courses and their total number of attendances which have more than 5 attendances in each course*/
+SELECT 
+  CourseID, 
+  MemberID, 
+  ParticipationStatus 
+FROM 
+  G_Course NATURAL 
+  JOIN G_CourseAttendance NATURAL 
+  JOIN G_Member 
+GROUP BY 
+  ParticipationStatus 
+HAVING 
+  ParticipationStatus > 5;
+
+
+
+
+/* This query lists all members who are active instructors and names of instructors currently runninc courses */
+SELECT 
+  FirstName, 
+  LastName, 
+  MemberID 
+FROM 
+  G_Member 
+UNION 
+SELECT 
+  * 
+FROM 
+  G_TrainingAssign 
+UNION 
+SELECT 
+  * 
+FROM 
+  G_Course;

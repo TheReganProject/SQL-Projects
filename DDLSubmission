@@ -1,0 +1,184 @@
+CREATE TABLE G_Member (
+  MemberID INT NOT NULL AUTO_INCREMENT,
+  FirstName VARCHAR (30),
+  LastName VARCHAR (30),
+  DOB DATE,
+  Gender VARCHAR (6),
+  StreetNumber INT,
+  StreetName VARCHAR (30),
+  Suburb VARCHAR (30),
+  PostCode INT (4),
+  State VARCHAR (30),
+  Mobile INT,
+  Email VARCHAR (30),
+  EmergencyContact VARCHAR (30),
+  EContactRelationship VARCHAR (30),
+  HighCholesterol VARCHAR (3),
+  Diabetes VARCHAR (3),
+  CardivascularCondition VARCHAR (30),
+  ParticipationStatus INT,
+  PRIMARY KEY (MemberID)
+);
+
+INSERT INTO
+  G_Member (
+    FirstName,
+    LastName,
+    DOB,
+    Gender,
+    PostCode,
+    State
+  )
+VALUES
+  ("Alice", "Smith", 11 / 11 / 11, "Female", 6000, "WA"),
+  ("David", "Ester", 12 / 12 / 12, "Male", 6000, "WA"),
+  ("Jordan", "Veroni", 01 / 01 / 01, "Male", 6000, "WA");
+
+CREATE TABLE G_MembershipClass (
+	MClassID INT NOT NULL AUTO_INCREMENT,
+	MembershipClass VARCHAR (30),
+	MembershipSubClass VARCHAR (30),
+	Description VARCHAR (50),
+	VotingRight VARCHAR (30),
+	PRIMARY KEY (MClassID)
+);
+
+INSERT INTO G_MembershipClass (MembershipClass, Description, VotingRight)
+VALUES ("Member", "Starndard Member", "No"),
+	("Associate", "Member who has voting rights", "Yes");
+
+CREATE TABLE G_Event (
+	EventID INT NOT NULL AUTO_INCREMENT,
+	Name VARCHAR (30),
+	Location VARCHAR (30),
+	StartDateTime TIME,
+	EndDateTime TIME,
+	WebURL VARCHAR (30),
+	Status VARCHAR (30),
+	MediaGoogleDrive VARCHAR (30),
+	PRIMARY KEY (EventID)
+);
+
+INSERT INTO G_Event (Name, Location, StartDateTime, EndDateTime)
+VALUES  ("BBQ", "Beechboro","12:00:00", "15:00:00"),
+	("Award Ceremony", "Perth City","17:00:00", "18:00:00"),
+	("Meetup", "Landsdale","12:00:00", "15:00:00");
+
+
+CREATE TABLE G_CommitteeMemberType (
+	CMTypeID INT NOT NULL AUTO_INCREMENT,
+	ACommitteePosition VARCHAR (30),
+	TermsDuration INT,
+	Notes VARCHAR (50),
+	PRIMARY KEY (CMTypeID)
+);
+
+INSERT INTO G_CommitteeMemberType (ACommitteePosition, TermsDuration)
+Values  ("Member", "12"),
+	("Associate", "24");
+
+CREATE TABLE G_Course (
+	CourseID INT NOT NULL AUTO_INCREMENT,
+	ExerciseType VARCHAR (30),
+	CourseLocation VARCHAR (30),
+	PRIMARY KEY (CourseID)
+);
+
+INSERT INTO
+  G_Course (ExcerciseType, CourseLocation)
+VALUES
+  ("Running", "Morley"),
+  ("Cycling", "Armadale"),
+  ("Swimming", "Cockburn");
+
+CREATE TABLE G_FeeSchedule (
+	FeeScheduleID INT NOT NULL AUTO_INCREMENT,
+	MClassID INT NOT NULL,
+	FeeType VARCHAR (30),
+	OneOff_Annual VARCHAR (30),
+	OneOff_Type VARCHAR (30),
+	Amount INT,
+	PRIMARY KEY (FeeScheduleID),
+	FOREIGN KEY (MClassID) REFERENCES G_MembershipClass (MClassID)
+);
+
+CREATE TABLE G_EventAttendance (
+	EventID INT NOT NULL,
+	MemberID INT NOT NULL,
+	PRIMARY KEY (EventID),
+	PRIMARY KEY (MemberID),
+	FOREIGN KEY (EventID) REFERENCES G_Event (EventID),
+	FOREIGN KEY (MemberID) REFERENCES G_Member (MemberID)
+);
+
+CREATE TABLE G_EventOrganising (
+	EventID INT NOT NULL,
+	MemberID INT NOT NULL,
+	Role VARCHAR (30),
+	Status VARCHAR (30),
+	AssignDate DATE,
+	PRIMARY KEY (EventID),
+	PRIMARY KEY (MemberID),
+	FOREIGN KEY (EventID) REFERENCES G_Event (EventID),
+	FOREIGN KEY (MemberID) REFERENCES G_Member (MemberID)
+);
+
+INSERT INTO G_EventOrganising (Role, Status, AssignDate)
+VALUES  ("Organiser", "Active", "05/05/05"),
+	("Participant", "Active", "05/05/05"),
+	("Participant", "Inactive", "05/05/05");
+
+CREATE TABLE G_MembershipHistory (
+	MHistoryID INT NOT NULL AUTO_INCREMENT,
+	MemberID INT NOT NULL,
+	FeeScheduleID INT NOT NULL,
+	MStartDate DATE,
+	MExpireDate DATE,
+	PRIMARY KEY (MHistoryID),
+	FOREIGN KEY (MemberID) REFERENCES G_Member (MemberID),
+	FOREIGN KEY (FeeScheduleID) REFERENCES G_FeeSchedule (FeeScheduleID)
+);
+
+CREATE TABLE G_CommitteeMemberHistory (
+	CMHistoryID int NOT NULL AUTO_INCREMENT,
+	MemberID int,
+	CMTypeID VARCHAR (30),
+	CMStartDate DATE,
+	CMExpireDate DATE,
+	PRIMARY KEY (CMHistoryID),
+	FOREIGN KEY (MemberID) REFERENCES G_Member (MemberID),
+	FOREIGN KEY (CMTypeID) REFERENCES G_CommitteeMemberType (CMTypeID)
+);
+
+CREATE TABLE G_Payment (
+	PaymentID INT NOT NULL AUTO_INCREMENT,
+	MHistoryID INT NOT NULL,
+	CAttendanceID INT NOT NULL,
+	Description VARCHAR (30),
+	VotingRight VARCHAR (30),
+	PRIMARY KEY (PaymentID),
+	FOREIGN KEY (MHistoryID) REFERENCES G_MembershipHistory (MHistoryID),
+	FOREIGN KEY (CAttendanceID) REFERENCES G_CourseAttendance (CAttendanceID)
+);
+
+CREATE TABLE G_TrainingAssign (
+	MemberID INT NOT NULL,
+	CourseID INT NOT NULL,
+	AssignDate DATE NOT NULL,
+	ExpireDate DATE NOT NULL,
+	PRIMARY KEY (MemberID),
+	PRIMARY KEY (CourseID),
+	PRIMARY KEY (AssignDate),
+	FOREIGN KEY (MemberID) REFERENCES G_Member (MemberID),
+	FOREIGN KEY (CourseID) REFERENCES G_Course (CourseID)
+);
+
+CREATE TABLE G_CourseAttendance (
+	CAttendanceID INT NOT NULL AUTO_INCREMENT,
+	MemberID INT NOT NULL,
+	CourseID INT NOT NULL,
+	AttendedDate DATE,
+	PRIMARY KEY (CAttendanceID),
+	FOREIGN KEY (MemberID) REFERENCES G_Member (MemberID),
+	FOREIGN KEY (CourseID) REFERENCES G_Course (CourseID)
+);
